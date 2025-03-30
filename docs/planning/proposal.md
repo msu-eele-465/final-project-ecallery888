@@ -6,7 +6,20 @@
 
 ## Embedded System Description
 
-At a high level, explain in 2-3 sentences what your embedded system will do.  Then, in 1-2 sentences each, explain each input, the process, and each output. This section is the bulk of the proposal.
+My embedded system is a trap door meant for inclusion in a wealthy villain's secret lair, outside of a bank vault, or at the entrance to a doomsday bunker. It'll sense the presence of a person outside the locked door and prompt them to enter the passcode and hit a hidden button in a certain period of time. If they fail, a motor will drive the trap door and they will be sent plummeting into a prison cell that will keep them locked away until the owner comes back.
+
+**The inputs to the system will be:**
+1.  A button: This button will need to be pressed before entering the passcode to enable keypad access. If it is not pressed before an attempt is made to enter the passcode, the trapdoor will trigger.
+2.  Keypad: The person trying to enter the passcode will have to do so within a limited amount of time into the 4x4 membrane keypad.
+3.  Temperature sensor (RTC): The Real Time Clock's temperature sensor will be used to determine if a person is at the pad. The person must put their hand on the clock so it can detect the body heat and then it will display a message that the keypad is ready to be used.
+
+**The outputs of the system will be:**
+1. LCD display: This will display instructions for whoever is attempting to enter the room.
+2. Buzzer: This buzzer will trigger when someone falls through the trapdoor, alerting anyone nearby.
+3. Motor: This motor will turn, moving the theoretical trapdoor with gears to open and then close again (I attached a wheel to it to better show it spinning).
+4. LED(s): There will be a status LED or two as well as one that turns on when the keypad is ready for entry.
+
+The system will run on a MSP430FR2355 and use 1 slave MSP43FR2310 to drive the LCD and another to drive the motor/buzzer.
 
 ## Hardware Setup
 
@@ -37,19 +50,22 @@ Desired Prescaler level:
 **Outline how you meet the requirements for your desired prescalar level**
 
 **The inputs to the system will be:**
-1.  Short description of input #1
-2.  
+1.  Button
+2.  Keypad
+3.  Temperature sensor (RTC)
 
 **The outputs of the system will be:**
-1.   Short description of output #1
-2. 
+1. LCD display
+2. Buzzer
+3. Motor
+4. LED(s)
 
 **The project objective is**
 
 {text – 1 to 2 sentences}
 
 **The new hardware or software modules are:**
-1. Short description of new hardware or software module
+1. Servo motor
 2. ICC or eCOMP
 
 
