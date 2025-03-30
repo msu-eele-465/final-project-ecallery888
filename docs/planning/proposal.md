@@ -11,7 +11,7 @@ My embedded system is a trap door meant for inclusion in a wealthy villain's sec
 **The inputs to the system will be:**
 1.  A button: This button will need to be pressed before entering the passcode to enable keypad access. If it is not pressed before an attempt is made to enter the passcode, the trapdoor will trigger.
 2.  Keypad: The person trying to enter the passcode will have to do so within a limited amount of time into the 4x4 membrane keypad.
-3.  Temperature sensor (RTC): The Real Time Clock's temperature sensor will be used to determine if a person is at the pad. The person must put their hand on the clock so it can detect the body heat and then it will display a message that the keypad is ready to be used.
+3.  Temperature sensor (RTC): The Real Time Clock's temperature sensor will be used to determine if a person is at the pad. The person must put their hand on the clock so it can detect the body heat and then it will display a message that the keypad is ready to be used. eCOMP(a software module) will be used to trigger keypad activation when the temperature rises above a certain level.
 
 **The outputs of the system will be:**
 1. LCD display: This will display instructions for whoever is attempting to enter the room.
@@ -19,10 +19,9 @@ My embedded system is a trap door meant for inclusion in a wealthy villain's sec
 3. Motor: This motor will turn, moving the theoretical trapdoor with gears to open and then close again (I attached a wheel to it to better show it spinning).
 4. LED(s): There will be a status LED or two as well as one that turns on when the keypad is ready for entry.
 
-The system will run on a MSP430FR2355 and use 1 slave MSP43FR2310 to drive the LCD and another to drive the motor/buzzer.
-
 ## Hardware Setup
 
+I'll require a servo motor, a buzzer, the MSP430s, and the LCD display, as well as a power supply to power the motor.
 What hardware will you require? Provide a conceptual circuit diagram and/or block diagram to help the reviewers understand your proposal. Be sure to introduce and discuss your figures in the text.
 
 ## Software overview
@@ -31,8 +30,7 @@ Discuss, at a high level, a concept of how your code will work. Include a *high-
 
 ## Testing Procedure
 
-Briefly describe how you will test and verify that your project is a success. Think about how you will *demo* the final project. If you need extra equipment for the demo, be sure that you can either bring the equipment or convincingly simulate it. For example, if you want to build a system that uses CAN bus to interface with your car, you won't be able to bring your car into Cobleigh for the demo...
-
+The project will be tested by a simulated encounter. Although there won't be an actual trapdoor, the servo spinning a wheel will show how it would spin the gears needed to operate a trapdoor.
 
 ## Prescaler
 
@@ -62,23 +60,21 @@ Desired Prescaler level:
 
 **The project objective is**
 
-{text – 1 to 2 sentences}
+Design a security system to protect one's house from criminals and catch any that may appear.
 
 **The new hardware or software modules are:**
 1. Servo motor
-2. ICC or eCOMP
-
+2. eCOMP
 
 The Master will be responsible for:
 
-{text – 1 to 2 sentences}
+The general state of the system, interfacing with the slaves and keeping everything synced.
 
 The Slave(s) will be responsible for:
 
-{text – 1 to 2 sentences}
-
+1 slave MSP43FR2310 will drive the LCD and another will drive the motor/buzzer. The RTC will also act as an I2C slave.
 
 
 ### Argument for Desired Prescaler
 
-Consider the guidelines presented in the lecture notes and convince the reviewers that this proposal meets the minimum requirements for your desired prescale level.
+This project clearly has 7 combined inputs/outputs, uses master/slave topology, and has a "real objective". eCOMP (can compare with internal reference voltages, use ISRs as well as set outputs) has never been used before in either 371 or 465, and the servo motor I'm using is different from the stepper motor that we used in 371. It also is relatively complex to implement as it requires an external power supply, precise tuning and driving, and care to not overexert the motor. Given that I've adapted 2 relatively complex hardware/software modules, I believe it fulfills the final requirement.
