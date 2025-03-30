@@ -1,8 +1,8 @@
 # Final project proposal
 
-- [ ] I have reviewed the project guidelines.
-- [ ] I will be working alone on this project.
-- [ ] No significant portion of this project will be (or has been) used in other course work.
+- [x] I have reviewed the project guidelines.
+- [x] I will be working alone on this project.
+- [x] No significant portion of this project will be (or has been) used in other course work.
 
 ## Embedded System Description
 
@@ -25,7 +25,7 @@ Briefly describe how you will test and verify that your project is a success. Th
 
 Desired Prescaler level: 
 
-- [ ] 100%
+- [x] 100%
 - [ ] 95% 
 - [ ] 90% 
 - [ ] 85% 
