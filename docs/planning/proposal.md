@@ -50,7 +50,7 @@ Desired Prescaler level:
 
 **The new hardware or software modules are:**
 1. Short description of new hardware or software module
-2. 
+2. ICC or eCOMP
 
 
 The Master will be responsible for:
