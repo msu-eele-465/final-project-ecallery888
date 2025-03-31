@@ -11,7 +11,7 @@ My embedded system is a trap door meant for inclusion in a wealthy villain's sec
 **The inputs to the system will be:**
 1.  A button: This button will need to be pressed before entering the passcode to enable keypad access. If it is not pressed before an attempt is made to enter the passcode, the trapdoor will trigger.
 2.  Keypad: The person trying to enter the passcode will have to do so within a limited amount of time into the 4x4 membrane keypad.
-3.  Temperature sensor (RTC): The Real Time Clock's temperature sensor will be used to determine if a person is at the pad. The person must put their hand on the clock so it can detect the body heat and then it will display a message that the keypad is ready to be used. eCOMP(a software module) will be used to trigger keypad activation when the temperature rises above a certain level.
+3.  Temperature sensor (LM19): The temperature sensor will be used to determine if a person is at the pad. The person must put their hand on the clock so it can detect the body heat and then it will display a message that the keypad is ready to be used. eCOMP(a software module) will be used to trigger keypad activation when the temperature rises above a certain level.
 
 **The outputs of the system will be:**
 1. LCD display: This will display instructions for whoever is attempting to enter the room.
@@ -21,7 +21,8 @@ My embedded system is a trap door meant for inclusion in a wealthy villain's sec
 
 ## Hardware Setup
 
-I'll require a servo motor, a buzzer, the MSP430s, and the LCD display, as well as a power supply to power the motor.
+I'll require a servo motor, a buzzer, the MSP430s, the LM19, and the LCD display, as well as a power supply to power the motor.
+![alt text]
 What hardware will you require? Provide a conceptual circuit diagram and/or block diagram to help the reviewers understand your proposal. Be sure to introduce and discuss your figures in the text.
 
 ## Software overview
@@ -50,7 +51,7 @@ Desired Prescaler level:
 **The inputs to the system will be:**
 1.  Button
 2.  Keypad
-3.  Temperature sensor (RTC)
+3.  Temperature sensor (LM19)
 
 **The outputs of the system will be:**
 1. LCD display
@@ -72,9 +73,9 @@ The general state of the system, interfacing with the slaves and keeping everyth
 
 The Slave(s) will be responsible for:
 
-1 slave MSP43FR2310 will drive the LCD and another will drive the motor/buzzer. The RTC will also act as an I2C slave.
+1 slave MSP43FR2310 will drive the LCD and another will drive the motor/buzzer.
 
 
 ### Argument for Desired Prescaler
 
-This project clearly has 7 combined inputs/outputs, uses master/slave topology, and has a "real objective". eCOMP (can compare with internal reference voltages, use ISRs as well as set outputs) has never been used before in either 371 or 465, and the servo motor I'm using is different from the stepper motor that we used in 371. It also is relatively complex to implement as it requires an external power supply, precise tuning and driving, and care to not overexert the motor. Given that I've adapted 2 relatively complex hardware/software modules, I believe it fulfills the final requirement.
+This project clearly has 7 combined inputs/outputs, uses master/slave topology, and has a "real objective". eCOMP (can compare read values with internal reference voltages, use ISRs as well as set outputs) has never been used before in either 371 or 465, and the servo motor I'm using is different from the stepper motor that we used in 371. It also is relatively complex to implement as it requires an external power supply, precise tuning and driving, and care to not overexert the motor. Given that I've adapted 2 relatively complex hardware/software modules, I believe it fulfills the final requirement.
