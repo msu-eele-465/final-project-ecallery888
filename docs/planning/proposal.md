@@ -4,6 +4,9 @@
 - [x] I will be working alone on this project.
 - [x] No significant portion of this project will be (or has been) used in other course work.
 
+## MODIFICATION
+I have switched the temperature sensor out for an infrared sensor on Trevor's suggestion.
+
 ## Embedded System Description
 
 My embedded system is a trap door meant for inclusion in a wealthy villain's secret lair, outside of a bank vault, or at the entrance to a doomsday bunker. It'll sense the presence of a person outside the locked door and prompt them to enter the passcode and hit a hidden button in a certain period of time. If they fail, a motor will drive the trap door and they will be sent plummeting into a prison cell that will keep them locked away until the owner comes back.
