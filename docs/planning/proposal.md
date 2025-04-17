@@ -26,13 +26,13 @@ My embedded system is a trap door meant for inclusion in a wealthy villain's sec
 
 I'll require a servo motor, a buzzer, the MSP430s, the LM19, and the LCD display, as well as a power supply to power the motor. Below is a simple circuit block diagram illustrating how each element will be connected.
 
-![alt text](FinalProjectCharts-ConceptualDiagram.svg)
+![alt text](../assets/FinalProjectCharts-ConceptualDiagram.svg)
 
 ## Software overview
 
 My master will communicate to the slaves via I2C, reading the temperature level using eCOMP to determine when to begin operations. Once the tempurature is high enough, the system will start up and go through the steps outlined below.
 
-![alt text](FinalProjectCharts-FlowchartSimple.svg)
+![alt text](../assets/FinalProjectCharts-FlowchartSimple.svg)
 
 ## Testing Procedure
 
