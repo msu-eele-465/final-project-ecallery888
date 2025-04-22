@@ -112,7 +112,7 @@ __interrupt void heartbeat_LED(void)
         TB0CCR0 = 5000;
         data_recieved_count++;
         
-        if(data_recieved_count == 10)
+        if(data_recieved_count == 6)
         {
             data_received = 0;
             data_recieved_count = 0;
