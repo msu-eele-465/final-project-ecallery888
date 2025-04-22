@@ -1,3 +1,8 @@
+/**
+* @file
+* @brief LCD header file
+*
+*/
 #ifndef LCD_H
 #define LCD_H
 
@@ -25,11 +30,18 @@
 #define lcd_send_command(cmd) lcd_send((cmd), 0)
 #define lcd_send_data(data)   lcd_send((data), 1)
 
-#define WINDOW_CHANGE           0x41      // A
-#define PATTERN_CHANGE          0x42      // B
-#define TEMP_UNIT_CHANGE        0x43      // C
-#define LOCK                    0x44      // D
-#define CHANGE_PERMITTED        0x47      // G
+/**
+* state definitions for LEDs
+*/
+typedef enum
+{
+    IR_DETECTED, 
+    FAKE_PROMPT, 
+    ENTER_CODE, 
+    WELCOME, 
+    GOODBYE
+} LED_State;
+
 
 /**
 * initialize lcd outputs and begin startup process
@@ -58,32 +70,6 @@ void lcd_send_string(char *str);
 */
 void lcd_choose_string(uint8_t data);
 
-/**
-* display the current pattern on the LCD
-*/
-void lcd_disp_pattern();
-
-/**
-* set window size
-* 
-* @param: byte of data (window size n)
-*/
-void lcd_set_window_size(uint8_t data);
-
-/**
-* set temperature to the 3 digits that've been sent over
-*/
-void lcd_set_temperature();
-
-/**
-* toggle cursor on lcd
-*/
-void lcd_toggle_cursor();
-
-/**
-* toggle cursor blink on lcd
-*/ 
-void lcd_toggle_blink();
 
 /**
 * lcd initialization
