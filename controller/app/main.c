@@ -14,9 +14,11 @@
 #include "msp430fr2355.h"
 
 
-uint8_t current_state = 0, reset_counter = 0, current_state = 0;
+uint8_t current_state = 0, reset_counter = 0, current_state = 0, ir_flag = 0, button_pressed = 0,
+trapdoor_wait_flag = 0, trapdoor_wait_count = 0, code_wait_flag = 0, code_wait_count = 0;
 // starting values for every pattern
-const uint8_t TRAPDOOR_ADDR = 0x0A, LCD_ADDR = 0x0B;
+const uint8_t TRAPDOOR_ADDR = 0x0A, LCD_ADDR = 0x0B, START = 0, 
+REAL_ENTER = 1, WELCOME = 2, GOODBYE = 3, BLANK = 4;
 char cur_char;
 
 // global keypad and pk_attempt initialization
@@ -32,12 +34,17 @@ char pk_attempt[4] = {'x','x','x','x'};
 /**
 * inits pattern transmit
 */
-void transmit_pattern()
+void trapdoor_trigger()
 {
+    trapdoor_wait_flag = 1;
     UCB0TBCNT = 1;
-    UCB0I2CSA = LED_BAR_ADDR;                            
+    UCB0I2CSA = TRAPDOOR_ADDR;                            
     while (UCB0CTLW0 & UCTXSTP);                      // Ensure stop condition got sent
     UCB0CTLW0 |= UCTR | UCTXSTT;                      // I2C TX, start condition
+
+    __delay_cycles(1000);
+    current_state = GOODBYE;
+    transmit_to_lcd();
 }
 
 /**
@@ -60,7 +67,6 @@ void transmit_to_lcd()
 */
 void init(void)
 {
-
     // Disable watchdog timer
     WDTCTL = WDTPW | WDTHOLD;
 
@@ -68,9 +74,19 @@ void init(void)
     // LED1
     P1DIR |= BIT0;              // Config as Output
     P1OUT |= BIT0;              // turn on to start
-    // LED2
-    P6DIR |= BIT6;              // Config as Output
-    P6OUT |= BIT6;              // turn on to start
+    // LED2 and 3
+    P6DIR |= BIT6 + BIT1;              
+    P6OUT |= BIT6;              
+    P6OUT &= ~BIT1;
+
+    // Button
+    P6DIR &= ~BIT0;         // clear 6.0 direction = input
+    P6REN |= BIT0;          // enable pull-up/down resistor
+    P6OUT |= BIT0;          // make resistor a pull-up
+
+    P6FG &= ~BIT0;          // Clear flag
+    P6IE &= ~BIT0;          // disable S1 IRQ
+    P6IES |= BIT0;          // Hi-low interrupt
 
     // Timer B0
     // Math: 1s = (1*10^-6)(D1)(D2)(25k)    D1 = 5, D2 = 8
@@ -86,10 +102,10 @@ void init(void)
     TB0CCTL0 |= CCIE;           // Enable IRQ
 
     // Timer B1
-    // Math: 1s = (1*10^-6)(D1)(D2)(25k)    D1 = 5, D2 = 4
+    // Math: .5s = (1*10^-6)(D1)(D2)(25k)    D1 = 5, D2 = 4
     TB1CTL |= TBCLR;            // Clear timer and dividers
     TB1CTL |= TBSSEL__SMCLK;    // Source = SMCLK
-    TB1CTL |= MC__UP;           // Mode UP
+    TB1CTL &= ~MC__UP;          // Mode UP, off to start
     TB1CTL |= ID__4;            // divide by 4 
     TB1EX0 |= TBIDEX__5;        // divide by 5 (100)
 
@@ -113,7 +129,26 @@ void init(void)
 
     UCB0CTLW0 &=~ UCSWRST;                            // clear reset register
     UCB0IE |= UCTXIE0 | UCNACKIE | UCBCNTIE;// transmit, receive, TBCNT, and NACK
-    
+
+    // eCOMP
+    // Configure Comparator input
+    P1SEL0 |= BIT1;                           // Select eCOMP input function on P1.1/C1
+    P1SEL1 |= BIT1;
+
+      // Configure reference
+    PMMCTL0_H = PMMPW_H;                      // Unlock the PMM registers
+    PMMCTL2 |= INTREFEN;                      // Enable internal reference
+    while(!(PMMCTL2 & REFGENRDY));            // Poll till internal reference settles
+  
+    // Setup eCOMP
+    CPCTL0 = CPPSEL0;                         // Select C1 as input for V+ terminal
+    CPCTL0 |= CPNSEL1 | CPNSEL2;              // Select DAC as input for V- terminal
+    CPCTL0 |= CPPEN | CPNEN;                  // Enable eCOMP input
+    CPCTL1 |= CPIIE | CPIE;                   // Enable eCOMP dual edge interrupt
+    CPDACCTL |= CPDACREFS | CPDACEN;          // Select on-chip VREF and enable DAC
+    CPDACDATA |= 0x003f;                      // CPDACBUF1=On-chip VREF *63/64
+    CPCTL1 |= CPEN;                           // Turn on eCOMP, in high speed mode
+
 //------------- END PORT SETUP -------------------
 
     __enable_interrupt();   // enable maskable IRQs
@@ -143,22 +178,66 @@ int main(void)
         __delay_cycles(100000);             // Delay for 100000*(1/MCLK)=0.1s
         if (ret == SUCCESS)
         {
-            if (keypad.lock_state == LOCKED)  // if we're locked and trying to unlock
+            if(button_pressed == 1)
             {
-                reset_counter = 0;
-                pk_attempt[count] = cur_char;
-                count++;
-                if (count == 4)
+                code_wait_flag = 1;
+                current_state = REAL_ENTER;
+                transmit_to_lcd();
+                if (keypad.lock_state == LOCKED)  // if we're locked and trying to unlock
                 {
-                    if(check_status(&keypad, pk_attempt) == SUCCESS)
+                    reset_counter = 0;
+                    pk_attempt[count] = cur_char;
+                    count++;
+                    if (count == 4)
                     {
-                        set_lock(&keypad, UNLOCKED);
+                        if(check_status(&keypad, pk_attempt) == SUCCESS)
+                        {
+                            code_wait_flag = 0;
+                            code_wait_count = 0;
+                            current_state = WELCOME;
+                            transmit_to_lcd();
+                            TB1CTL |= MC__UP;                   // turn LED flashing on
+                            trapdoor_wait_flag = 1;             // wait for 10 sec to reset
+                        }
+                        count = 0;
                     }
-                    count = 0;
                 }
             }
+            else
+            {
+                trapdoor_trigger();
+            }
+            
             
         }
+
+        if(ir_flag == 1)
+        {
+            current_state = START;
+            transmit_to_lcd();
+            ir_flag = 0;
+            CPCTL1 &= ~CPEN;                           // Turn off eCOMP
+            P6OUT |= BIT1;                            // turn on ready LED
+        }
+
+        if(trapdoor_wait_flag == 2)
+        {
+            P6OUT &= ~BIT1;
+            trapdoor_wait_flag = 0;
+            trapdoor_wait_count = 0;
+            ir_flag = 0;
+            button_pressed = 0;
+            current_state = BLANK;
+            transmit_to_lcd();
+            CPCTL1 |= CPEN;                           // Turn on eCOMP, in high speed mode
+        }
+        if(code_wait_flag == 2)
+        {
+            code_wait_flag = 0;
+            code_wait_count = 0;
+            trapdoor_trigger();
+        }
+
 
         __delay_cycles(100000);             // Delay for 100000*(1/MCLK)=0.1s
     }
@@ -188,7 +267,7 @@ __interrupt void transmit_data(void)
         else
         {
             // register address begins at 0, then we set sec and min to 0
-            UCB0TXBUF = 0;                          
+            UCB0TXBUF = 1;                          
         }
         break;                                  
     default:
@@ -198,39 +277,73 @@ __interrupt void transmit_data(void)
 }
 
 /**
-* read from ADC every .5s
+* status_LED
+*/
+#pragma vector = TIMER0_B0_VECTOR
+__interrupt void status_LED(void)
+{
+    P1OUT ^= BIT0;
+    if(trapdoor_wait_flag)
+    {
+        trapdoor_wait_count++;
+        if(trapdoor_wait_count == 10)
+        {
+            trapdoor_wait_flag = 2;
+        }
+    }
+    else if(code_wait_flag)
+    {
+        code_wait_count++;
+        if(code_wait_count == 10)
+        {
+            code_wait_flag++;
+        }
+    }
+    TB0CCTL1 &= ~CCIFG;     // clear flag
+}
+
+/**
+* flash LED if successfully unlocked
 */
 #pragma vector = TIMER1_B0_VECTOR
-__interrupt void read_ADC(void)
+__interrupt void read_temps(void)
 {
     P6OUT ^= BIT6;
-    adc_flag = 1;
-     if (current_idx == oldest_idx) {
-        // overwriting the oldest index, subtract from total before saving
-        total -= temp_buffer[oldest_idx];
-        oldest_idx = (oldest_idx + 1) % window_size;
-    }
-
-    prev_idx = current_idx;
-    current_idx = (current_idx + 1) % window_size;
-
-    if (!init_count) {
-       avg_temp_flag = 1;
-    } else if (init_count && (current_idx == (window_size - 1))){
-        // wait to send average temp
-        init_count = 0;
-    }
     TB1CCTL1 &= ~CCIFG;     // clear flag
 }
 
 /**
-* Read temperature value from ADC
+* Read IR sensor output and act based on changes
 */
-#pragma vector = ADC_VECTOR
-__interrupt void recordAV(void)
+#pragma vector=ECOMP0_VECTOR
+__interrupt void ECOMP0_ISR(void)
 {
-    // save to current index
-    temp_buffer[prev_idx] = ADCMEM0;
-    total += ADCMEM0;
-    
+    switch(__even_in_range(CPIV, CPIV__CPIIFG))
+    {
+        case CPIV__NONE:
+            break;
+        case CPIV__CPIFG:
+            break;
+        case CPIV__CPIIFG:          // falling edge
+            if(ir_flag == 0)
+            {
+                ir_flag = 1;
+                button_pressed = 0;
+                P6IE |= BIT0;           // Enable S1 IRQ
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+/**
+* Checks to see if the button has been pressed
+*/
+#pragma vector = PORT6_VECTOR
+__interrupt void button_press_handler(void)
+{
+    button_pressed = 1;
+    P6IE &= ~BIT0;           // disable S1 IRQ
+    P6IFG &= ~BIT0;
 }

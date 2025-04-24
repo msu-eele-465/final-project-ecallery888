@@ -8,8 +8,8 @@
 #include "msp430fr2310.h"
 
 char *lcd_strings[] = {
-    "Hello there", "Enter code", "Nice, enter code", "Welcome!",
-    "Goodbye :("
+    "Hello there", "Enter code", "Welcome!",
+    "Goodbye :(", " "
 };
 
 void init_lcd(){
