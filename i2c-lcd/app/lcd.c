@@ -16,12 +16,6 @@ void init_lcd(){
     P1DIR |= BIT0 | BIT1 | BIT4 | BIT5 | BIT6 | BIT7;       // EN, RS, DB4, DB5, DB6, DB7
     P1OUT &= ~(BIT0 | BIT1 | BIT4 | BIT5 | BIT6 | BIT7);    // Clear outputs
 
-    state_flag = 0;
-    current_temp_digit = 0;
-    current_n = '3';
-    current_pattern = 8;                      // "none"
-    temp_unit = 'C';
-    change_allowed = 0;
 
     PM5CTL0 &= ~LOCKLPM5;
     

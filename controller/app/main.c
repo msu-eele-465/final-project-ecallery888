@@ -9,12 +9,11 @@
 #include <stdio.h>
 
 #include "../src/keypad.h"
-#include "../src/led_status.h"
 #include "intrinsics.h"
 #include "msp430fr2355.h"
 
 
-uint8_t current_state = 0, reset_counter = 0, current_state = 0, ir_flag = 0, button_pressed = 0,
+uint8_t current_state = 0, reset_counter = 0, ir_flag = 0, button_pressed = 0,
 trapdoor_wait_flag = 0, trapdoor_wait_count = 0, code_wait_flag = 0, code_wait_count = 0;
 // starting values for every pattern
 const uint8_t TRAPDOOR_ADDR = 0x0A, LCD_ADDR = 0x0B, START = 0, 
@@ -84,7 +83,7 @@ void init(void)
     P6REN |= BIT0;          // enable pull-up/down resistor
     P6OUT |= BIT0;          // make resistor a pull-up
 
-    P6FG &= ~BIT0;          // Clear flag
+    P6IFG &= ~BIT0;          // Clear flag
     P6IE &= ~BIT0;          // disable S1 IRQ
     P6IES |= BIT0;          // Hi-low interrupt
 
@@ -344,6 +343,6 @@ __interrupt void ECOMP0_ISR(void)
 __interrupt void button_press_handler(void)
 {
     button_pressed = 1;
-    P6IE &= ~BIT0;           // disable S1 IRQ
+    // P6IE &= ~BIT0;           // disable S1 IRQ
     P6IFG &= ~BIT0;
 }
