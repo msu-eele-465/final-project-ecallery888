@@ -12,7 +12,7 @@ uint8_t recieved_data = 0;
 uint8_t trapdoor_turning_count = 0;
 uint8_t current_state = 0;
 
-const uint8_t OFF = 0, OPENING = 1, CLOSING = 2;
+uint8_t OFF = 0, OPENING = 1, CLOSING = 2;
 
 int main(void)
 {
@@ -143,6 +143,7 @@ __interrupt void heartbeat_LED(void)
                 current_state = OFF;
                 TB0CTL &= ~MC__UP;          // setting MC=0 to stop trapdoor
                 trapdoor_turning_count = 0;
+                TB1CCR0 = 25000;
             }
             break;
         default:

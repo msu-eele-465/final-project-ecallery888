@@ -4,7 +4,6 @@
 *
 */
 #include <math.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -79,13 +78,13 @@ void init(void)
     P6OUT &= ~BIT1;
 
     // Button
-    P6DIR &= ~BIT0;         // clear 6.0 direction = input
-    P6REN |= BIT0;          // enable pull-up/down resistor
-    P6OUT |= BIT0;          // make resistor a pull-up
+    P4DIR &= ~BIT0;         // clear 6.0 direction = input
+    P4REN |= BIT0;          // enable pull-up/down resistor
+    P4OUT |= BIT0;          // make resistor a pull-up
 
-    P6IFG &= ~BIT0;          // Clear flag
-    P6IE &= ~BIT0;          // disable S1 IRQ
-    P6IES |= BIT0;          // Hi-low interrupt
+    P4IFG &= ~BIT0;          // Clear flag
+    P4IE &= ~BIT0;          // disable S1 IRQ
+    P4IES |= BIT0;          // Hi-low interrupt
 
     // Timer B0
     // Math: 1s = (1*10^-6)(D1)(D2)(25k)    D1 = 5, D2 = 8
@@ -127,7 +126,7 @@ void init(void)
     UCB0TBCNT = 1;                                    // num bytes to send/recieve
 
     UCB0CTLW0 &=~ UCSWRST;                            // clear reset register
-    UCB0IE |= UCTXIE0 | UCNACKIE | UCBCNTIE;// transmit, receive, TBCNT, and NACK
+    UCB0IE |= UCTXIE0 | UCNACKIE | UCRXIE0 | UCBCNTIE;// transmit, receive, TBCNT, and NACK
 
     // eCOMP
     // Configure Comparator input
@@ -140,13 +139,13 @@ void init(void)
     while(!(PMMCTL2 & REFGENRDY));            // Poll till internal reference settles
   
     // Setup eCOMP
-    CPCTL0 = CPPSEL0;                         // Select C1 as input for V+ terminal
-    CPCTL0 |= CPNSEL1 | CPNSEL2;              // Select DAC as input for V- terminal
-    CPCTL0 |= CPPEN | CPNEN;                  // Enable eCOMP input
-    CPCTL1 |= CPIIE | CPIE;                   // Enable eCOMP dual edge interrupt
-    CPDACCTL |= CPDACREFS | CPDACEN;          // Select on-chip VREF and enable DAC
-    CPDACDATA |= 0x003f;                      // CPDACBUF1=On-chip VREF *63/64
-    CPCTL1 |= CPEN;                           // Turn on eCOMP, in high speed mode
+    CP0CTL0 = CPPSEL0;                         // Select C1 as input for V+ terminal
+    CP0CTL0 |= CPNSEL1 | CPNSEL2;              // Select DAC as input for V- terminal
+    CP0CTL0 |= CPPEN | CPNEN;                  // Enable eCOMP input
+    CP0CTL1 |= CPIIE | CPIE;                   // Enable eCOMP dual edge interrupt
+    CP0DACCTL |= CPDACREFS | CPDACEN;          // Select on-chip VREF and enable DAC
+    CP0DACDATA |= 0x003f;                      // CPDACBUF1=On-chip VREF *63/64
+    CP0CTL1 |= CPEN;                           // Turn on eCOMP, in high speed mode
 
 //------------- END PORT SETUP -------------------
 
@@ -171,10 +170,9 @@ int main(void)
     init();
     init_keypad(&keypad);
 
-    while(true)
+    while(1)
     {
         ret = scan_keypad(&keypad, &cur_char);
-        __delay_cycles(100000);             // Delay for 100000*(1/MCLK)=0.1s
         if (ret == SUCCESS)
         {
             if(button_pressed == 1)
@@ -217,6 +215,7 @@ int main(void)
             ir_flag = 0;
             CPCTL1 &= ~CPEN;                           // Turn off eCOMP
             P6OUT |= BIT1;                            // turn on ready LED
+            P4IE |= BIT0;                             // Enable S1 IRQ
         }
 
         if(trapdoor_wait_flag == 2)
@@ -314,10 +313,10 @@ __interrupt void read_temps(void)
 /**
 * Read IR sensor output and act based on changes
 */
-#pragma vector=ECOMP0_VECTOR
+#pragma vector = ECOMP0_ECOMP1_VECTOR
 __interrupt void ECOMP0_ISR(void)
 {
-    switch(__even_in_range(CPIV, CPIV__CPIIFG))
+    switch(__even_in_range(CP0IV, CPIV__CPIIFG))
     {
         case CPIV__NONE:
             break;
@@ -328,7 +327,6 @@ __interrupt void ECOMP0_ISR(void)
             {
                 ir_flag = 1;
                 button_pressed = 0;
-                P6IE |= BIT0;           // Enable S1 IRQ
             }
             break;
         default:
@@ -339,10 +337,11 @@ __interrupt void ECOMP0_ISR(void)
 /**
 * Checks to see if the button has been pressed
 */
-#pragma vector = PORT6_VECTOR
+#pragma vector = PORT4_VECTOR
 __interrupt void button_press_handler(void)
 {
     button_pressed = 1;
-    // P6IE &= ~BIT0;           // disable S1 IRQ
-    P6IFG &= ~BIT0;
+    P6OUT ^= BIT6;
+    P4IE &= ~BIT0;           // disable S1 IRQ
+    P4IFG &= ~BIT0;
 }
