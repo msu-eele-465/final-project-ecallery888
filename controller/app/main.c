@@ -173,7 +173,6 @@ int main(void)
     while(1)
     {
         ret = scan_keypad(&keypad, &cur_char);
-        __delay_cycles(100000);             // Delay for 100000*(1/MCLK)=0.1s
         if (ret == SUCCESS)
         {
             if(button_pressed == 1)
