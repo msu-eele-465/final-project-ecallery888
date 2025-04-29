@@ -4,7 +4,6 @@
 *
 */
 #include <math.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -140,13 +139,13 @@ void init(void)
     while(!(PMMCTL2 & REFGENRDY));            // Poll till internal reference settles
   
     // Setup eCOMP
-    CPCTL0 = CPPSEL0;                         // Select C1 as input for V+ terminal
-    CPCTL0 |= CPNSEL1 | CPNSEL2;              // Select DAC as input for V- terminal
-    CPCTL0 |= CPPEN | CPNEN;                  // Enable eCOMP input
-    CPCTL1 |= CPIIE | CPIE;                   // Enable eCOMP dual edge interrupt
-    CPDACCTL |= CPDACREFS | CPDACEN;          // Select on-chip VREF and enable DAC
-    CPDACDATA |= 0x003f;                      // CPDACBUF1=On-chip VREF *63/64
-    CPCTL1 |= CPEN;                           // Turn on eCOMP, in high speed mode
+    CP0CTL0 = CPPSEL0;                         // Select C1 as input for V+ terminal
+    CP0CTL0 |= CPNSEL1 | CPNSEL2;              // Select DAC as input for V- terminal
+    CP0CTL0 |= CPPEN | CPNEN;                  // Enable eCOMP input
+    CP0CTL1 |= CPIIE | CPIE;                   // Enable eCOMP dual edge interrupt
+    CP0DACCTL |= CPDACREFS | CPDACEN;          // Select on-chip VREF and enable DAC
+    CP0DACDATA |= 0x003f;                      // CPDACBUF1=On-chip VREF *63/64
+    CP0CTL1 |= CPEN;                           // Turn on eCOMP, in high speed mode
 
 //------------- END PORT SETUP -------------------
 
@@ -171,7 +170,7 @@ int main(void)
     init();
     init_keypad(&keypad);
 
-    while(true)
+    while(1)
     {
         ret = scan_keypad(&keypad, &cur_char);
         __delay_cycles(100000);             // Delay for 100000*(1/MCLK)=0.1s
