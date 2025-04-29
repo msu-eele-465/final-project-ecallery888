@@ -33,29 +33,7 @@ int main(void)
   P1OUT &= ~BIT0;                           // Clear P1.2 output latch for a defined power-on state
   P1DIR |= BIT0;                            // Set P1.2 to output direction
 
-  // Configure Comparator input & output
-//   P1SEL0 |= BIT1;                           // Select eCOMP input function on P1.1/C1
-//   P1SEL1 |= BIT1;
-// //   P2DIR |= BIT0;
-// //   P2SEL1 |= BIT0;                           // Select CPOUT function on P2.0/COUT
-
-//   PM5CTL0 &= ~LOCKLPM5;                     // Disable the GPIO power-on default high-impedance mode
-//                                             // to activate previously configured port settings
-
-//   // Configure reference module
-//   PMMCTL0_H = PMMPW_H;                    // Unlock the PMM registers
-//   PMMCTL2 = INTREFEN | REFVSEL_0;         // Enable internal 1.5V reference
-//   while(!(PMMCTL2 & REFGENRDY));          // Poll till internal reference settles
-
-//   // Setup eCOMP
-//   CP0CTL0 = CPPSEL0;                         // Select C1 as input for V+ terminal
-//   CP0CTL0 |= CPNSEL1 | CPNSEL2;              // Select DAC as input for V- terminal
-//   CP0CTL0 |= CPPEN | CPNEN;                  // Enable eCOMP input
-//   CP0CTL1 |= CPIIE | CPIE;                   // Enable eCOMP dual edge interrupt
-//   CP0DACCTL |= CPDACREFS | CPDACEN;          // Select on-chip VREF and enable DAC
-//   CP0DACDATA |= 0x002B;                      // CPDACBUF1=On-chip VREF*43/64 = 1V
-//   CP0CTL1 |= CPEN;                           // Turn on eCOMP, in high speed mode
-  // eCOMP
+     // eCOMP
     // Configure Comparator input
     P1SEL0 |= BIT1;                           // Select eCOMP input function on P1.1/C1
     P1SEL1 |= BIT1;

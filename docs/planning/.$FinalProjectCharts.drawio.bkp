@@ -851,7 +851,7 @@
         <mxCell id="tMpSu7G7wyCv_3BNzDiY-1" value="" style="verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;html=1;verticalAlign=top;shape=mxgraph.electrical.opto_electronics.led_2;pointerEvents=1;rotation=90;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
           <mxGeometry x="382.69438682550816" y="478.9889433176467" width="42.747021723896296" height="24.30285106704739" as="geometry" />
         </mxCell>
-        <mxCell id="tMpSu7G7wyCv_3BNzDiY-7" value="P6.5" style="rounded=0;whiteSpace=wrap;html=1;direction=west;rotation=-90;" vertex="1" parent="1">
+        <mxCell id="tMpSu7G7wyCv_3BNzDiY-7" value="P6.1" style="rounded=0;whiteSpace=wrap;html=1;direction=west;rotation=-90;" vertex="1" parent="1">
           <mxGeometry x="315.4155781359496" y="440.2399149386634" width="42.747021723896296" height="16.20190071136492" as="geometry" />
         </mxCell>
         <mxCell id="tMpSu7G7wyCv_3BNzDiY-11" value="" style="group;rotation=90;" vertex="1" connectable="0" parent="1">
