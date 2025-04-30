@@ -88,6 +88,8 @@
                     </folderInfo>
                     <sourceEntries>
                         <entry excluding="test" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="test/i2c-test"/>
+                        <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="test/eComp"/>
                     </sourceEntries>
                 </configuration>
             </storageModule>
