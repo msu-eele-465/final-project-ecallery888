@@ -119,6 +119,8 @@ __interrupt void heartbeat_LED(void)
                 // Math: .2s = (1*10^-6)(D1)(D2)(5k)    D1 = 5, D2 = 8
                 TB1CCR0 = 5000;
                 P1OUT |= BIT4;             // turn on buzzer
+                TB0CCR0 = 21300-1;                         // PWM Period (21.3 ms)
+                TB0CCR1 = 1300;             // CCR1 PWM duty cycle (1.6 ms)
                 TB0CTL |= MC__UP;          // setting MC=1 to start trapdoor
             }
             trapdoor_turning_count++;
@@ -143,6 +145,7 @@ __interrupt void heartbeat_LED(void)
                 current_state = OFF;
                 TB0CTL &= ~MC__UP;          // setting MC=0 to stop trapdoor
                 trapdoor_turning_count = 0;
+                TB1CCR0 = 25000;
             }
             break;
         default:
