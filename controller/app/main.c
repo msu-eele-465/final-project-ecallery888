@@ -12,7 +12,7 @@
 #include "msp430fr2355.h"
 
 
-uint8_t current_state = 0, reset_counter = 0, ir_flag = 0, button_pressed = 0,
+uint8_t current_state = 0, ir_flag = 0, button_pressed = 0,
 trapdoor_wait_flag = 0, trapdoor_wait_count = 0, code_wait_flag = 0, code_wait_count = 0;
 // starting values for every pattern
 const uint8_t TRAPDOOR_ADDR = 0x0A, LCD_ADDR = 0x0B, START = 0, 
@@ -24,10 +24,21 @@ Keypad keypad = {
     .lock_state = LOCKED,                           // locked is 1
     .row_pins = {BIT3, BIT2, BIT1, BIT0},      // order is 5, 6, 7, 8
     .col_pins = {BIT4, BIT5, BIT2, BIT0},    // order is 1, 2, 3, 4
-    .passkey = {'1','1','1','1'},
+    .passkey = {51,51,51,51},
 };
 
 char pk_attempt[4] = {'x','x','x','x'};
+
+/**
+* inits lcd transmit
+*/
+void transmit_to_lcd()
+{
+    UCB0TBCNT = 1;
+    UCB0I2CSA = LCD_ADDR;
+    while (UCB0CTLW0 & UCTXSTP);                      // Ensure stop condition got sent
+    UCB0CTLW0 |= UCTR | UCTXSTT;                      // I2C TX, start condition
+}
 
 /**
 * inits pattern transmit
@@ -45,16 +56,7 @@ void trapdoor_trigger()
     transmit_to_lcd();
 }
 
-/**
-* inits lcd transmit
-*/
-void transmit_to_lcd()
-{
-    UCB0TBCNT = 1;
-    UCB0I2CSA = LCD_ADDR;
-    while (UCB0CTLW0 & UCTXSTP);                      // Ensure stop condition got sent
-    UCB0CTLW0 |= UCTR | UCTXSTT;                      // I2C TX, start condition
-}
+
 
 /**
 * initializes LED 1, Timers, and LED bar ports
@@ -173,34 +175,31 @@ int main(void)
     while(1)
     {
         ret = scan_keypad(&keypad, &cur_char);
+        __delay_cycles(100000);             // Delay for 100000*(1/MCLK)=0.1s
         if (ret == SUCCESS)
         {
-            if(button_pressed == 1)
+            __delay_cycles(10);
+            if(current_state == REAL_ENTER)
             {
-                code_wait_flag = 1;
-                current_state = REAL_ENTER;
-                transmit_to_lcd();
-                if (keypad.lock_state == LOCKED)  // if we're locked and trying to unlock
+                pk_attempt[count] = cur_char;
+                count++;
+                if (count == 4)
                 {
-                    reset_counter = 0;
-                    pk_attempt[count] = cur_char;
-                    count++;
-                    if (count == 4)
+                    if(check_status(&keypad, pk_attempt) == SUCCESS)
                     {
-                        if(check_status(&keypad, pk_attempt) == SUCCESS)
-                        {
-                            code_wait_flag = 0;
-                            code_wait_count = 0;
-                            current_state = WELCOME;
-                            transmit_to_lcd();
-                            TB1CTL |= MC__UP;                   // turn LED flashing on
-                            trapdoor_wait_flag = 1;             // wait for 10 sec to reset
-                        }
-                        count = 0;
+                        code_wait_flag = 0;
+                        code_wait_count = 0;
+                        button_pressed = 0;
+                        current_state = WELCOME;
+                        transmit_to_lcd();
+                        TB1CTL |= MC__UP;                   // turn LED flashing on
+                        trapdoor_wait_flag = 1;             // wait for 10 sec to reset
                     }
+                    count = 0;
+                
                 }
             }
-            else
+            else if(current_state == START)
             {
                 trapdoor_trigger();
             }
@@ -217,6 +216,13 @@ int main(void)
             P6OUT |= BIT1;                            // turn on ready LED
             P4IE |= BIT0;                             // Enable S1 IRQ
         }
+        if(button_pressed == 1)
+        {
+            code_wait_flag = 1;
+            button_pressed = 0;
+            current_state = REAL_ENTER;
+            transmit_to_lcd();
+        }
 
         if(trapdoor_wait_flag == 2)
         {
@@ -225,6 +231,7 @@ int main(void)
             trapdoor_wait_count = 0;
             ir_flag = 0;
             button_pressed = 0;
+            TB1CTL &= ~MC__UP;                   // turn LED flashing off
             current_state = BLANK;
             transmit_to_lcd();
             CPCTL1 |= CPEN;                           // Turn on eCOMP, in high speed mode
@@ -237,7 +244,7 @@ int main(void)
         }
 
 
-        __delay_cycles(100000);             // Delay for 100000*(1/MCLK)=0.1s
+        // __delay_cycles(100000);             // Delay for 100000*(1/MCLK)=0.1s
     }
 
     return(0);
