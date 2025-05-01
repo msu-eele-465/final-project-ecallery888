@@ -1,6 +1,6 @@
 /**
 * @file
-* @brief LED bar functionality
+* @brief Motor and buzzer functionality
 *
 */
 
