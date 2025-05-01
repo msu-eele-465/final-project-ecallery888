@@ -19,13 +19,13 @@ I used eCOMP to monitor my IR sensor for the extra difficult software/hardware m
 
 ##  Architecture
 
-![Software architecture](../assets/FinalProjectCharts-SoftwareArchitecture.svg)
+![Software architecture](docs/assets/FinalProjectCharts-SoftwareArchitecture.svg)
 
 ## Flowchart
 
-![Flowchart](../assets/FinalProjectCharts-FlowchartSimple.svg)
+![Flowchart](docs/assets/FinalProjectCharts-FlowchartSimple.svg)
 
 ## Circuit Diagram
 
-![Circuit Diagram](../assets/FinalProjectCharts-CircuitDiagram.svg)
+![Circuit Diagram](docs/assets/FinalProjectCharts-CircuitDiagram.svg)
 
