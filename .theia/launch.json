@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "i2c-lcd",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "i2c-lcd",
+                "resourceId": "/i2c-lcd"
+            }
+        },
+        {
+            "name": "i2c-motor-buzzer",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "i2c-motor-buzzer",
+                "resourceId": "/i2c-motor-buzzer"
+            }
+        },
+        {
+            "name": "controller",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "controller",
+                "resourceId": "/controller"
+            }
+        }
+    ]
+}
