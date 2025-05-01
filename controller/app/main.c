@@ -1,6 +1,6 @@
 /**
 * @file
-* @brief Implements LED_status and keypad to operate a pattern-displaying LED bar
+* @brief Implements keypad and runs trapdoor functionality
 *
 */
 #include <math.h>
@@ -14,7 +14,7 @@
 
 uint8_t current_state = 0, ir_flag = 0, button_pressed = 0,
 trapdoor_wait_flag = 0, trapdoor_wait_count = 0, code_wait_flag = 0, code_wait_count = 0;
-// starting values for every pattern
+
 const uint8_t TRAPDOOR_ADDR = 0x0A, LCD_ADDR = 0x0B, START = 0, 
 REAL_ENTER = 1, WELCOME = 2, GOODBYE = 3, BLANK = 4;
 char cur_char;
@@ -59,7 +59,7 @@ void trapdoor_trigger()
 
 
 /**
-* initializes LED 1, Timers, and LED bar ports
+* initializes LED 1, 2, and 3, Buttons, Timers, I2C, and eCOMP
 * 
 * @param: NA
 *
@@ -157,7 +157,7 @@ void init(void)
 
 
 /**
-* Handle character reading and set base multiplier, setting patterns as well
+* Handle character reading and flag-triggered functionality
 * 
 * @param: NA
 *

@@ -1,6 +1,6 @@
 /**
 * @file
-* @brief Slave code for LCD msp. Recieves data and displays a number.
+* @brief Slave code for LCD msp. Recieves number corresponding to strings to be displayed
 *
 */
 #include <msp430fr2310.h>
